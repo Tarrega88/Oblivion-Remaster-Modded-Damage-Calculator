@@ -93,9 +93,48 @@ function exportToCSV(array, filename = "damage_table.csv") {
     document.body.removeChild(link);
 }
 
-exportToCSV(sortedByRelativeStrength, "sortedByRelativeStrength.csv");
-exportToCSV(sortedByDealt, "sortedByDamageDealt.csv");
-exportToCSV(sortedByTaken, "sortedByDamageTaken.csv");
+function renderTable(array, titleText) {
+    const container = document.createElement("div");
+
+    const title = document.createElement("h2");
+    title.innerText = titleText;
+    container.appendChild(title);
+
+    const table = document.createElement("table");
+    const headers = Object.keys(array[0]);
+
+    const headerRow = document.createElement("tr");
+    headers.forEach(header => {
+        const th = document.createElement("th");
+        th.innerText = header;
+        headerRow.appendChild(th);
+    });
+    table.appendChild(headerRow);
+
+    array.forEach(obj => {
+        const row = document.createElement("tr");
+        headers.forEach(header => {
+            const td = document.createElement("td");
+            td.innerText = obj[header];
+            row.appendChild(td);
+        });
+        table.appendChild(row);
+    });
+
+    container.appendChild(table);
+    document.body.appendChild(container);
+}
+
+renderTable(sortedByRelativeStrength, "Sorted by Relative Strength");
+renderTable(sortedByDealt, "Sorted by Damage Dealt");
+renderTable(sortedByTaken, "Sorted by Damage Taken");
+
+
+if (confirm("OK to Download CSV Files - Cancel to Just View")) {
+    exportToCSV(sortedByRelativeStrength, "sortedByRelativeStrength.csv");
+    exportToCSV(sortedByDealt, "sortedByDamageDealt.csv");
+    exportToCSV(sortedByTaken, "sortedByDamageTaken.csv");
+}
 
 //Legacy code of the loop over sliderMult. This version manually inputs the data into the difficulties array.
 /*
