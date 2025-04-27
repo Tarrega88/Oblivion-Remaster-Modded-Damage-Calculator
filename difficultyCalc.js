@@ -48,7 +48,7 @@ for (const mult of sliderMult) {
 
     const damageModDifficulties = [];
     for (const damageMultValue of damageMult) {
-        const damageModName = `x${damageMultValue.toString()}`;
+        const damageModName = `x${damageMultValue}`;
         for (let i = 0; i < difficulties.length; i++) {
             const difficultyWithMult = { ...difficulties[i] };
             difficultyWithMult.damageModName = damageModName;
@@ -77,8 +77,6 @@ for (const entry of flat) {
 const sortedByTaken = uniqueFlat.toSorted((a, b) => a.taken - b.taken); //Taking the least and ascending
 const sortedByDealt = uniqueFlat.toSorted((a, b) => b.dealt - a.dealt); //Dealing the most and descending
 const sortedByRelativeStrength = uniqueFlat.toSorted((a, b) => b.relativeStrength - a.relativeStrength);
-
-console.log(sortedByTaken);
 
 function exportToCSV(array, filename = "damage_table.csv") {
     const headers = Object.keys(array[0]).join(",") + "\n";
