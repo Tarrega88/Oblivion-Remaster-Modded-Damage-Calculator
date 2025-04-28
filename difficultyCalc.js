@@ -10,13 +10,14 @@ const sliderMult = [2.5, 0.25, 0.5, 0.75, 1]; //The "Difficulty Slider Fixed" mo
 
 //filters are in percent.
 //These allow the option during table generation to ignore anything outside of their range. For instance, anything greater than 300% dealt damage would be ignored.
+
 const filters = {
-    maxDealt: 300,
-    minDealt: 66,
-    maxTaken: 500,
-    minTaken: 33,
-    maxRelative: 156,
-    minRelative: 16
+    maxDealt: 300, //300
+    minDealt: 75, //75
+    maxTaken: 500, //500
+    minTaken: 80, //80
+    maxRelative: 156, //156
+    minRelative: 16 //16
 }
 
 const sliderOutput = [];
