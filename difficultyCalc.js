@@ -20,7 +20,7 @@ const filters = {
 }
 
 //Whichever versions of the mods we add here, like x2 or x1.5, will take precedence and will not be overwritten if a duplicate of damage taken/damage dealt is found with another combination of the mods and difficulty settings.
-const combinationPrecedence = [{ moreDamageVersion: "x2", sliderModVersion: "x2" }];
+const combinationPrecedence = [{ sliderModVersion: "x3", moreDamageVersion: "x1.5" }];
 
 const sliderOutput = [];
 
