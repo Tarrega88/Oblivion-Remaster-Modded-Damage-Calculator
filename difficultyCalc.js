@@ -10,7 +10,6 @@ const sliderMult = [2.5, 0.25, 0.5, 0.75, 1]; //The "Difficulty Slider Fixed" mo
 
 //filters are in percent.
 //These allow the option during table generation to ignore anything outside of their range. For instance, anything greater than 300% dealt damage would be ignored.
-
 const filters = {
     maxDealt: 300, //300
     minDealt: 75, //75
@@ -19,6 +18,9 @@ const filters = {
     maxRelative: 156, //156
     minRelative: 16 //16
 }
+
+//Whichever versions of the mods we add here, like x2 or x1.5, will take precedence and will not be overwritten if a duplicate of damage taken/damage dealt is found with another combination of the mods and difficulty settings.
+const combinationPrecedence = [{ moreDamageVersion: "x2", sliderModVersion: "x2" }];
 
 const sliderOutput = [];
 
@@ -75,23 +77,40 @@ for (const mult of sliderMult) {
     difficulties.push(...damageModDifficulties);
 }
 
-const flat = sliderOutput.flat();
-
-const uniqueFlat = [];
+const flat = sliderOutput.flat().toSorted((a, b) => {
+    for (const combo of combinationPrecedence) {
+        const aIsCombo = a.damageModName === combo.moreDamageVersion && a.sliderModName === combo.sliderModVersion;
+        const bIsCombo = b.damageModName === combo.moreDamageVersion && b.sliderModName === combo.sliderModVersion;
+        if (aIsCombo && !bIsCombo) return -1;
+        if (!aIsCombo && bIsCombo) return 1;
+    }
+    return a.damageModName.localeCompare(b.damageModName) || a.sliderModName.localeCompare(b.sliderModName);
+});
 
 const seen = new Set();
 
-for (const entry of flat) {
-    const key = `${entry.taken}-${entry.dealt}`;
-    if (!seen.has(key)) {
-        seen.add(key);
-        uniqueFlat.push(entry);
+function filterOutDuplicates() {
+    const arr = [];
+    for (const entry of flat) {
+        const key = `${entry.taken}-${entry.dealt}`;
+        if (!seen.has(key)) {
+            seen.add(key);
+            arr.push(entry);
+        }
     }
+    return arr;
 }
 
-const sortedByTaken = uniqueFlat.toSorted((a, b) => a.taken - b.taken); //Taking the least and ascending
-const sortedByDealt = uniqueFlat.toSorted((a, b) => b.dealt - a.dealt); //Dealing the most and descending
-const sortedByRelativeStrength = uniqueFlat.toSorted((a, b) => b.relativeStrength - a.relativeStrength);
+const shallFilterDuplicates = confirm("Press OK to filter out any duplicates. Press Cancel to see all possible combinations, even if the damage dealt and taken is identical.");
+
+const tableOfValues = shallFilterDuplicates ? filterOutDuplicates() : flat;
+
+const sortedByTaken = tableOfValues.toSorted((a, b) => a.taken - b.taken); //Taking the least and ascending
+const sortedByDealt = tableOfValues.toSorted((a, b) => b.dealt - a.dealt); //Dealing the most and descending
+const sortedByRelativeStrength = tableOfValues.toSorted((a, b) => {
+    if (b.relativeStrength !== a.relativeStrength) return b.relativeStrength - a.relativeStrength;
+    return a.dealt - b.dealt;
+})
 
 const filteredRelativeStrength = sortedByRelativeStrength.filter(e => {
     const isWithinMinRelative = e.relativeStrength >= filters.minRelative / 100;
@@ -165,10 +184,9 @@ function renderTable(array, titleText, renderFilterText = false) {
     title.innerText = titleText;
     container.appendChild(title);
 
-    // Add filter description text here
     const filterSummary = document.createElement("p");
     filterSummary.innerText = generateFilterSummary(filters);
-    filterSummary.style.whiteSpace = "pre-line"; // <- important
+    filterSummary.style.whiteSpace = "pre-line";
 
     if (renderFilterText) container.appendChild(filterSummary);
 
@@ -203,7 +221,17 @@ function renderTable(array, titleText, renderFilterText = false) {
     document.body.appendChild(container);
 }
 
-if (confirm("OK to use filters, cancel to ignore filters")) {
+
+
+if (confirm(`Press OK to use filters, cancel to ignore filters.
+Current Filters are that the Player Must:
+- Deal no more than ${filters.maxDealt}% damage
+- Deal no less than ${filters.minDealt}% damage
+- Take no more than ${filters.maxTaken}% damage
+- Take no less than ${filters.minTaken}% damage
+- Be no more than ${filters.maxRelative}% stronger than enemies
+- Be no less than ${filters.minRelative}% the strength of enemies
+    `)) {
     renderTable(filteredRelativeStrength, "Filtered and Sorted by Relative Strength", true);
     renderTable(filteredDealt, "Filtered and Sorted by Damage Dealt");
     renderTable(filteredTaken, "Filtered and Sorted by Damage Taken");
