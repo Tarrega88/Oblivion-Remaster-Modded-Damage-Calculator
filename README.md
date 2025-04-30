@@ -1,3 +1,10 @@
+- Update: I am nearing completion on a user friendly version of this calculator, which I have in another repo: https://github.com/Tarrega88/oblivion-remaster-difficulty-calculator  
+
+This repo will be left unchanged since it's just a quick download and might be easier for some people to play with.  
+All future updates will be made to the other repo.  
+  
+End update -
+
 To use:  
 Download files into a folder.  
 Open index.html with a web browser of your choice.  
